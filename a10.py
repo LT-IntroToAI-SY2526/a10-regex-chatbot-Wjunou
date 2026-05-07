@@ -8,17 +8,24 @@ from typing import List, Callable, Tuple, Any, Match
 
 def get_page_html(title: str) -> str:
     for attempt in range(5):
-        response = requests.get(
-            "https://en.wikipedia.org/w/api.php",
-            params={
-                "action": "parse",
-                "page": title,
-                "prop": "text",
-                "format": "json",
-                "redirects": True,
-            },
-            headers={"User-Agent": "intro-ai-class/1.0"}
-        )
+        try:
+            response = requests.get(
+                "https://en.wikipedia.org/w/api.php",
+                params={
+                    "action": "parse",
+                    "page": title,
+                    "prop": "text",
+                    "format": "json",
+                    "redirects": True,
+                },
+                headers={"User-Agent": "intro-ai-class/1.0"},
+                timeout=10
+            )
+        except requests.exceptions.ConnectTimeout:
+            print(f"Connection timed out, retrying '{title}'... (attempt {attempt+1}/5)")
+            time.sleep(5)
+            continue
+
         if response.status_code == 429:
             wait = int(response.headers.get("Retry-After", 5))
             print(f"Rate limited — waiting {wait}s before retrying '{title}'...")
@@ -27,8 +34,9 @@ def get_page_html(title: str) -> str:
         if response.status_code == 200 and response.text.strip():
             data = response.json()
             if "error" not in data:
-                time.sleep(2)  # polite delay after every successful call
+                time.sleep(3)
                 return data["parse"]["text"]["*"]
+
     raise ConnectionError(f"Could not retrieve Wikipedia page for '{title}' after 5 attempts")
 
 
