@@ -122,6 +122,33 @@ def get_birth_date(name: str) -> str:
 
     return match.group("birth")
 
+def get_death_date(name: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"(?:Died|Death)[^\n]*(?P<death>\w+ \d{1,2}, \d{4})"
+    match = get_match(infobox_text, pattern, "No death date found")
+    return match.group("death")
+
+
+def death_date(matches: List[str]) -> List[str]:
+    return [get_death_date(" ".join(matches))]
+def get_capital(country: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(country)))
+    pattern = r"Capital(?: city)?\s*(?P<capital>.+)"
+    match = get_match(infobox_text, pattern, "No capital found")
+    return match.group("capital").split("\n")[0]
+
+
+def capital_city(matches: List[str]) -> List[str]:
+    return [get_capital(" ".join(matches))]
+def get_founded_year(entity: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(entity)))
+    pattern = r"(?:Founded|Established)[^\n]*(?P<year>\d{4})"
+    match = get_match(infobox_text, pattern, "No founded year found")
+    return match.group("year")
+
+
+def founded_year(matches: List[str]) -> List[str]:
+    return [get_founded_year(" ".join(matches))]
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
