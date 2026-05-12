@@ -135,11 +135,13 @@ def get_birth_date(name: str) -> str:
 
 def get_capital(country: str) -> str:
     infobox_text = clean_text(get_first_infobox_text(get_page_html(country)))
-    pattern = r"Capital(?: city)?\s*(?P<capital>.+)"
+    pattern = r"Capital(?: city)?\s*(?P<capital>[A-Za-z]+)"
     match = get_match(infobox_text, pattern, "No capital found")
-    return match.group("capital").split("\n")[0]
+    return match.group("capital").strip()
+    print("USING PATTERN:", pattern)
 
-
+#def get_cordinates
+#def get_
 
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
