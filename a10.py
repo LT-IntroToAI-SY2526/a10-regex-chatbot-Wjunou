@@ -139,11 +139,7 @@ def get_capital(country: str) -> str:
     match = get_match(infobox_text, pattern, "No capital found")
     return match.group("capital").split("\n")[0]
 
-def get_founded_year(entity: str) -> str:
-    infobox_text = clean_text(get_first_infobox_text(get_page_html(entity)))
-    pattern = r"(?:Founded|Established)[^\n]*(?P<year>\d{4})"
-    match = get_match(infobox_text, pattern, "No founded year found")
-    return match.group("year")
+
 
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
@@ -180,9 +176,7 @@ def capital_city(matches: List[str]) -> List[str]:
     return [get_capital(" ".join(matches))]
 
 
-def founded_year(matches: List[str]) -> List[str]:
 
-    return [get_founded_year(" ".join(matches))]
 
 
 # dummy argument is ignored and doesn't matter
@@ -201,7 +195,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
     (["bye"], bye_action),
-    
+    ("what is the capital of %".split(), capital_city),
     
 ]
 
