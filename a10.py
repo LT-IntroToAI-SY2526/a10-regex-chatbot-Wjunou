@@ -131,11 +131,7 @@ def get_birth_date(name: str) -> str:
 
     return match.group("birth")
 
-def get_death_date(name: str) -> str:
-    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
-    pattern = r"(?:Died|Death)[^\n]*?(?P<death>(January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4})"
-    match = get_match(infobox_text, pattern, "No death date found")
-    return match.group("death")
+
 
 def get_capital(country: str) -> str:
     infobox_text = clean_text(get_first_infobox_text(get_page_html(country)))
@@ -178,9 +174,6 @@ def polar_radius(matches: List[str]) -> List[str]:
     """
     return [get_polar_radius(matches[0])]
 
-def death_date(matches: List[str]) -> List[str]:
-
-    return [get_death_date(" ".join(matches))]
 
 def capital_city(matches: List[str]) -> List[str]:
 
@@ -208,7 +201,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
     (["bye"], bye_action),
-    ("when did % die".split(), death_date),
+    
     
 ]
 
