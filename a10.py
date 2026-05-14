@@ -95,7 +95,7 @@ def get_match(
     return match
 
 
-def get_polar_radius(planet_name: str) -> str:
+#def get_polar_radius(planet_name: str) -> str:
     """Gets the radius of the given planet
 
     Args:
@@ -112,7 +112,7 @@ def get_polar_radius(planet_name: str) -> str:
     return match.group("radius")
 
 
-def get_birth_date(name: str) -> str:
+#def get_birth_date(name: str) -> str:
     """Gets birth date of the given person
 
     Args:
@@ -146,13 +146,23 @@ def get_population(place: str) -> str:
     match = get_match(infobox_text, pattern, error_text)
     return match.group("population")
 
+def get_height(name: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"(?:Height|height)\s*(?P<height>[\d\s\w\.\(\)]+?(?:ft|m|cm)[^\n]*)"
+    match = get_match(
+        infobox_text,
+        pattern,
+        "No height information found"
+    )
+    return match.group("height").strip()
+
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
 # list of the answer(s) and not just the answer itself.
 
 
-def birth_date(matches: List[str]) -> List[str]:
+#def birth_date(matches: List[str]) -> List[str]:
     """Returns birth date of named person in matches
 
     Args:
@@ -164,7 +174,7 @@ def birth_date(matches: List[str]) -> List[str]:
     return [get_birth_date(" ".join(matches))]
 
 
-def polar_radius(matches: List[str]) -> List[str]:
+#def polar_radius(matches: List[str]) -> List[str]:
     """Returns polar radius of planet in matches
 
     Args:
@@ -183,6 +193,11 @@ def capital_city(matches: List[str]) -> List[str]:
 def population(matches: List[str]) -> List[str]:
     return [get_population(" ".join(matches))]
 
+def height(matches: List[str]) -> List[str]:
+    name = " ".join(matches)   # correct
+    return [get_height(name)]
+
+
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
     raise KeyboardInterrupt
@@ -196,11 +211,13 @@ Action = Callable[[List[str]], List[Any]]
 # The pattern-action list for the natural language query system. It must be declared
 # here, after all of the function definitions
 pa_list: List[Tuple[Pattern, Action]] = [
-    ("when was % born".split(), birth_date),
-    ("what is the polar radius of %".split(), polar_radius),
+    #("when was % born".split(), birth_date),
+    #("what is the polar radius of %".split(), polar_radius),
     (["bye"], bye_action),
     ("what is the capital of %".split(), capital_city),
     ("what is the population of %".split(), population),
+    ("how tall is %".split(), height),
+
 ]
 
 
@@ -221,8 +238,8 @@ def search_pa_list(src: List[str]) -> List[str]:
         if mat is not None:
             answer = act(mat)
             return answer if answer else ["No answers"]
-
     return ["I don't understand"]
+
 
 
 def query_loop() -> None:
