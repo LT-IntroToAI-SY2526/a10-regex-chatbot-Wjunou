@@ -140,16 +140,10 @@ def get_capital(country: str) -> str:
     return match.group("capital").strip()
 
 def get_population(place: str) -> str:
-    """Gets population of a country/place"""
-
     infobox_text = clean_text(get_first_infobox_text(get_page_html(place)))
-
-    pattern = r"Population.*?(?P<population>[\d,]+)"
-
-    error_text = "Page infobox has no population information"
-
+    pattern = r"Population.*?(?:\(\d{4}\))?\D*(?P<population>[\d,]{5,})"
+    error_text = "no population information"
     match = get_match(infobox_text, pattern, error_text)
-
     return match.group("population")
 
 
@@ -186,9 +180,8 @@ def capital_city(matches: List[str]) -> List[str]:
 
     return [get_capital(" ".join(matches))]
 
-
-
-
+def population(matches: List[str]) -> List[str]:
+    return [get_population(" ".join(matches))]
 
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
@@ -207,7 +200,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("what is the polar radius of %".split(), polar_radius),
     (["bye"], bye_action),
     ("what is the capital of %".split(), capital_city),
-    
+    ("what is the population of %".split(), population),
 ]
 
 
