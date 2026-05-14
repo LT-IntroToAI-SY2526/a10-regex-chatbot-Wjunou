@@ -135,13 +135,22 @@ def get_birth_date(name: str) -> str:
 
 def get_capital(country: str) -> str:
     infobox_text = clean_text(get_first_infobox_text(get_page_html(country)))
-    pattern = r"Capital(?: city)?\s*(?P<capital>[A-Za-z]+)"
+    pattern = r"Capital(?: city)?\s*(?P<capital>[A-Za-z .-]+?)(?=\s*(Largest|Area|Population|Government|Demonym|Language|Time|USPS|ISO|Website))"
     match = get_match(infobox_text, pattern, "No capital found")
     return match.group("capital").strip()
-    print("USING PATTERN:", pattern)
 
-#def get_cordinates
-#def get_
+def get_population(place: str) -> str:
+    """Gets population of a country/place"""
+
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(place)))
+
+    pattern = r"Population.*?(?P<population>[\d,]+)"
+
+    error_text = "Page infobox has no population information"
+
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("population")
 
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
