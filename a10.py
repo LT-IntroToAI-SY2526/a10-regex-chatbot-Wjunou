@@ -136,7 +136,8 @@ def get_match(
 def get_capital(country: str) -> str:
     infobox_text = clean_text(get_first_infobox_text(get_page_html(country)))
     pattern = r"Capital(?: city)?\s*(?P<capital>[A-Za-z .-]+?)(?=\s*(Largest|Area|Population|Government|Demonym|Language|Time|USPS|ISO|Website))"
-    match = get_match(infobox_text, pattern, "No capital found")
+    error_text= "No capital found"
+    match = get_match(infobox_text, pattern, error_text)
     return match.group("capital").strip()
 
 def get_population(place: str) -> str:
@@ -146,15 +147,13 @@ def get_population(place: str) -> str:
     match = get_match(infobox_text, pattern, error_text)
     return match.group("population")
 
-def get_height(name: str) -> str:
+def get_kids(name: str) -> str:
     infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
-    pattern = r"(?:Height|height)\s*(?P<height>[\d\s\w\.\(\)]+?(?:ft|m|cm)[^\n]*)"
-    match = get_match(
-        infobox_text,
-        pattern,
-        "No height information found"
-    )
-    return match.group("height").strip()
+
+    pattern = r"Children\s*(?P<children>[\d,]+)"
+    error_text="No kids information found"
+    match = get_match(infobox_text,pattern, error_text)
+    return match.group("children").replace(",", "").strip()
 
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
@@ -193,9 +192,9 @@ def capital_city(matches: List[str]) -> List[str]:
 def population(matches: List[str]) -> List[str]:
     return [get_population(" ".join(matches))]
 
-def height(matches: List[str]) -> List[str]:
-    name = " ".join(matches)   # correct
-    return [get_height(name)]
+def kids(matches: List[str]) -> List[str]:
+    name = " ".join(matches)
+    return [get_kids(name)]
 
 
 # dummy argument is ignored and doesn't matter
@@ -216,8 +215,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     (["bye"], bye_action),
     ("what is the capital of %".split(), capital_city),
     ("what is the population of %".split(), population),
-    ("how tall is %".split(), height),
-
+    ("how many kids did % have".split(), kids),
 ]
 
 
