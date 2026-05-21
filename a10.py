@@ -155,6 +155,16 @@ def get_kids(name: str) -> str:
     match = get_match(infobox_text,pattern, error_text)
     return match.group("children").replace(",", "").strip()
 
+def get_release_date(song: str) -> str:
+    """Gets release date of the given song from its Wikipedia infobox"""
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(song)))
+    pattern = r"(?:Released|Release date)\s*(?P<released>[A-Za-z0-9 ,]+)"
+    error_text = "No release date information found"
+    match = get_match(infobox_text, pattern, error_text)
+    return match.group("released").strip()
+
+
+
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
@@ -196,6 +206,10 @@ def kids(matches: List[str]) -> List[str]:
     name = " ".join(matches)
     return [get_kids(name)]
 
+def release_date(matches: List[str]) -> List[str]:
+    song = " ".join(matches)
+    return [get_release_date(song)]
+
 
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
@@ -216,6 +230,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("what is the capital of %".split(), capital_city),
     ("what is the population of %".split(), population),
     ("how many kids did % have".split(), kids),
+    ("when was % released".split(), release_date),
 ]
 
 
