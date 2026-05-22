@@ -110,8 +110,6 @@ def get_match(
     match = get_match(infobox_text, pattern, error_text)
 
     return match.group("radius")
-
-
 #def get_birth_date(name: str) -> str:
     """Gets birth date of the given person
 
@@ -211,6 +209,8 @@ def release_date(matches: List[str]) -> List[str]:
     return [get_release_date(song)]
 
 
+
+
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
     raise KeyboardInterrupt
@@ -226,11 +226,11 @@ Action = Callable[[List[str]], List[Any]]
 pa_list: List[Tuple[Pattern, Action]] = [
     #("when was % born".split(), birth_date),
     #("what is the polar radius of %".split(), polar_radius),
-    (["bye"], bye_action),
     ("what is the capital of %".split(), capital_city),
     ("what is the population of %".split(), population),
     ("how many kids did % have".split(), kids),
     ("when was % released".split(), release_date),
+    (["bye"], bye_action),
 ]
 
 
