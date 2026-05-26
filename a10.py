@@ -161,6 +161,11 @@ def get_release_date(song: str) -> str:
     match = get_match(infobox_text, pattern, error_text)
     return match.group("released").strip()
 
+def get_director(title: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
+    pattern = r"Directed by\s*(?P<director>[A-Za-z .'-]+?)(?=(Written by|Produced by|Starring|Release date|Running time))"
+    match = get_match(infobox_text, pattern, "No director found")
+    return match.group("director").strip()
 
 
 
@@ -208,6 +213,8 @@ def release_date(matches: List[str]) -> List[str]:
     song = " ".join(matches)
     return [get_release_date(song)]
 
+def director(matches: List[str]) -> List[str]:
+    return [get_director(" ".join(matches))]
 
 
 
@@ -230,6 +237,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("what is the population of %".split(), population),
     ("how many kids did % have".split(), kids),
     ("when was % released".split(), release_date),
+    ("yes directed %".split(), director),
     (["bye"], bye_action),
 ]
 
