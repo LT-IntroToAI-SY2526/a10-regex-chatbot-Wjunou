@@ -167,6 +167,11 @@ def get_director(title: str) -> str:
     match = get_match(infobox_text, pattern, "No director found")
     return match.group("director").strip()
 
+def get_profession(name: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"Occupations\s*(?P<occ>[A-Za-z ,.\-]+?)(?=\s*[A-Z][a-zA-Z ]{2,}:?)"
+    match = get_match(infobox_text, pattern, "No occupation found")
+    return match.group("occ").strip()
 
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
@@ -216,6 +221,10 @@ def release_date(matches: List[str]) -> List[str]:
 def director(matches: List[str]) -> List[str]:
     return [get_director(" ".join(matches))]
 
+def profession(matches: List[str]) -> List[str]:
+    return [get_profession(" ".join(matches))]
+
+
 
 
 # dummy argument is ignored and doesn't matter
@@ -238,6 +247,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("how many kids did % have".split(), kids),
     ("when was % released".split(), release_date),
     ("yes directed %".split(), director),
+    ("% profession".split(), profession),
     (["bye"], bye_action),
 ]
 
