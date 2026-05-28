@@ -58,18 +58,12 @@ def get_first_infobox_text(html: str) -> str:
 
 
 def clean_text(text: str) -> str:
-    """Cleans given text removing non-ASCII characters and duplicate spaces & newlines
-
-    Args:
-        text - text to clean
-
-    Returns:
-        cleaned text
-    """
-    only_ascii = "".join([char if char in string.printable else " " for char in text])
-    no_dup_spaces = re.sub(" +", " ", only_ascii)
-    no_dup_newlines = re.sub("\n+", "\n", no_dup_spaces)
-    return no_dup_newlines
+    text = "".join([c if c in string.printable else " " for c in text])
+    text = text.replace("<br>", "\n").replace("<br/>", "\n").replace("<br />", "\n")
+    text = text.replace("\t", " ")
+    text = re.sub(" +", " ", text)
+    text = re.sub("\n{2,}", "\n", text)
+    return text.strip()
 
 
 def get_match(
@@ -169,9 +163,19 @@ def get_director(title: str) -> str:
 
 def get_profession(name: str) -> str:
     infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
-    pattern = r"Occupations\s*(?P<occ>[A-Za-z ,.\-]+?)(?=\s*[A-Z][a-zA-Z ]{2,}:?)"
+    pattern = r"Occupation[s]?\s*(?P<occ>[\s\S]*?)(?=\n[A-Z][a-zA-Z ]{2,}:)"
     match = get_match(infobox_text, pattern, "No occupation found")
     return match.group("occ").strip()
+
+def get_spouse(name: str) -> str:
+    """Gets spouse(s) of the given person"""
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"(?:Spouse)\s*[:\-]?\s*(?P<spouse>[A-Z][a-z]+\s[A-Z][a-z]+)"
+    error_text = (
+        "Page infobox has no spouse information"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+    return match.group("spouse")
 
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
@@ -222,10 +226,11 @@ def director(matches: List[str]) -> List[str]:
     return [get_director(" ".join(matches))]
 
 def profession(matches: List[str]) -> List[str]:
-    return [get_profession(" ".join(matches))]
+    name = " ".join(matches)
+    return [get_profession(name)]
 
-
-
+def spouse(matches: List[str]) -> List[str]:
+    return [get_spouse(" ".join(matches))]
 
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
@@ -245,9 +250,12 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("what is the capital of %".split(), capital_city),
     ("what is the population of %".split(), population),
     ("how many kids did % have".split(), kids),
+
+
     ("when was % released".split(), release_date),
     ("yes directed %".split(), director),
     ("% profession".split(), profession),
+    ("who is % spouse".split(), spouse),
     (["bye"], bye_action),
 ]
 
