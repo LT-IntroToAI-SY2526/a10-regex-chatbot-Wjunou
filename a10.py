@@ -177,6 +177,37 @@ def get_spouse(name: str) -> str:
     match = get_match(infobox_text, pattern, error_text)
     return match.group("spouse")
 
+def get_founded(org: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(org)))
+    pattern = r"Founded\s*(?P<founded>.*?)(?=Founder|Type|Location|President|Students)"
+    match = get_match(infobox_text, pattern, "No founded date found")
+    return " ".join(match.group("founded").split())
+
+def get_budget(title: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
+    pattern = r"Budget\s*(?P<budget>.*?)(?=Box office|Release date|Running time)"
+    match = get_match(infobox_text, pattern, "No budget found")
+    budget = " ".join(match.group("budget").split())
+    budget = re.sub(r"\[\d+\]", "", budget)
+    return budget.strip()
+
+def get_episodes(show: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(show)))
+
+    pattern = r"No\.\s*of episodes\s*(?P<episodes>\d+)"
+    match = get_match(infobox_text, pattern, "No episode count found")
+
+    return match.group("episodes")
+
+def get_box_office(title: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
+    pattern = r"Box office\s*(?P<box>.*?)(?:Budget|Running time|Release date|$)"
+    match = get_match(infobox_text, pattern, "No box office found")
+    box = " ".join(match.group("box").split())
+    box = re.sub(r"\[[^\]]*\]", "", box)
+    return box.strip()
+
+
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
@@ -232,10 +263,21 @@ def profession(matches: List[str]) -> List[str]:
 def spouse(matches: List[str]) -> List[str]:
     return [get_spouse(" ".join(matches))]
 
+def founded(matches: List[str]) -> List[str]:
+    return [get_founded(" ".join(matches))]
+
+def budget(matches: List[str]) -> List[str]:
+    return [get_budget(" ".join(matches))]
+
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
     raise KeyboardInterrupt
 
+def episodes(matches: List[str]) -> List[str]:
+    return [get_episodes(" ".join(matches))]
+
+def box_office(matches: List[str]) -> List[str]:
+    return [get_box_office(" ".join(matches))]
 
 # type aliases to make pa_list type more readable, could also have written:
 # pa_list: List[Tuple[List[str], Callable[[List[str]], List[Any]]]] = [...]
@@ -250,12 +292,15 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("what is the capital of %".split(), capital_city),
     ("what is the population of %".split(), population),
     ("how many kids did % have".split(), kids),
-
+    ("% profession".split(), profession),#dont work
 
     ("when was % released".split(), release_date),
     ("yes directed %".split(), director),
-    ("% profession".split(), profession),
+    ("when was % founded".split(), founded),
     ("who is % spouse".split(), spouse),
+    ("what was the budget of %".split(), budget),
+    ("how many episodes does % have".split(), episodes),
+    ("what was the box office of %".split(), box_office),
     (["bye"], bye_action),
 ]
 
